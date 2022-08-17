@@ -10,6 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var serviceEndpoint = map[string]string{
+	"door":      "http://localhost:8080/door",
+	"equipment": "http://localhost:8080/equipment",
+}
+
 var name string
 
 // statusCmd represents the status command
@@ -19,6 +24,7 @@ var statusCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("status called with name:", name)
+		fmt.Printf("%s :service, %s :endpoint\n", name, serviceEndpoint[name])
 	},
 }
 
