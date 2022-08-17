@@ -6,14 +6,22 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"io/ioutil"
+	"log"
+	"net/http"
 )
 
 var serviceEndpoint = map[string]string{
 	"door":      "http://localhost:8080/door",
 	"equipment": "http://localhost:8080/equipment",
 }
+
+//type Joke struct {
+//ID     string `json:"id"`
+//Joke   string `json:"joke"`
+//Status int    `json:"status"`
+//}
 
 var name string
 
@@ -25,7 +33,54 @@ var statusCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("status called with name:", name)
 		fmt.Printf("%s :service, %s :endpoint\n", name, serviceEndpoint[name])
+		getServiceStatus(name)
 	},
+}
+
+func getServiceStatus(name string) {
+	fmt.Println("getServiceStatus called with name:", name)
+
+	url := serviceEndpoint[name]
+
+	responseBytes := getActuatorHealth(url)
+
+	//joke := Joke{}
+
+	//if err := json.Unmarshal(responseBytes, &joke); err != nil {
+	//log.Panicf("Error unmarshalling response: %v", err)
+	//}
+
+	//fmt.Println(joke.Joke)
+}
+
+func getActuatorHealth(url string) []byte {
+	fmt.Println("getActuatorHealth called with url:", url)
+
+	request, err := http.NewRequest(
+		http.MethodGet,
+		url,
+		nil,
+	)
+
+	if err != nil {
+		log.Printf("Error creating request: %v", err)
+	}
+
+	request.Header.Add("Accept", "application/json")
+
+	response, err := http.DefaultClient.Do(request)
+
+	if err != nil {
+		log.Printf("Error getting response: %v", err)
+	}
+
+	responseBytes, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		log.Printf("Error reading response: %v", err)
+	}
+
+	return responseBytes
 }
 
 func init() {
