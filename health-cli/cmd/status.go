@@ -6,10 +6,12 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"log"
 	"net/http"
+	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 var serviceEndpoint = map[string]string{
@@ -30,8 +32,11 @@ var statusCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("status called with name:", name)
-		fmt.Printf("%s :service, %s :endpoint\n", name, serviceEndpoint[name])
-		getServiceStatus(name)
+		split := strings.Split(name, ",")
+		for _, s := range split {
+			fmt.Printf("%s :service, %s :endpoint\n", s, serviceEndpoint[s])
+			getServiceStatus(s)
+		}
 	},
 }
 
