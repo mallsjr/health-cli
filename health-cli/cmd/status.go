@@ -1,27 +1,25 @@
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
 
 var serviceEndpoint = map[string]string{
-	"door":      "http://localhost:8080/door",
+	"door":      "https://opsdoor-development.app.wtcdev1.paas.fedex.com/actuator/health",
 	"equipment": "http://localhost:8080/equipment",
 }
 
-//type Joke struct {
-//ID     string `json:"id"`
-//Joke   string `json:"joke"`
-//Status int    `json:"status"`
-//}
+type Health struct {
+	Status string `json:"status"`
+}
 
 var name string
 
@@ -44,13 +42,13 @@ func getServiceStatus(name string) {
 
 	responseBytes := getActuatorHealth(url)
 
-	//joke := Joke{}
+	health := Health{}
 
-	//if err := json.Unmarshal(responseBytes, &joke); err != nil {
-	//log.Panicf("Error unmarshalling response: %v", err)
-	//}
+	if err := json.Unmarshal(responseBytes, &health); err != nil {
+		log.Panicf("Error unmarshalling response: %v", err)
+	}
 
-	//fmt.Println(joke.Joke)
+	fmt.Printf("%s service is reporting status of %s\n", name, health.Status)
 }
 
 func getActuatorHealth(url string) []byte {
@@ -74,7 +72,7 @@ func getActuatorHealth(url string) []byte {
 		log.Printf("Error getting response: %v", err)
 	}
 
-	responseBytes, err := ioutil.ReadAll(response.Body)
+	responseBytes, err := io.ReadAll(response.Body)
 
 	if err != nil {
 		log.Printf("Error reading response: %v", err)
