@@ -16,7 +16,7 @@ import (
 
 var serviceEndpoint = map[string]string{
 	"door":      "https://opsdoor-development.app.wtcdev1.paas.fedex.com/actuator/health",
-	"equipment": "http://localhost:8080/equipment",
+	"equipment": "https://opsequipment-development.app.wtcdev1.paas.fedex.com/actuator/health",
 }
 
 type Health struct {
