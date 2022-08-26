@@ -24,6 +24,7 @@ type Health struct {
 }
 
 var name string
+var level string
 
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
@@ -32,6 +33,8 @@ var statusCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("status called with name:", name)
+		fmt.Println("status called with level:", level)
+		
 		split := strings.Split(name, ",")
 		for _, s := range split {
 			fmt.Printf("%s :service, %s :endpoint\n", s, serviceEndpoint[s])
@@ -98,5 +101,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	statusCmd.Flags().StringVarP(&name, "name", "n", "", "name of the service")
+	statusCmd.Flags().StringVarP(&level, "level", "l", "", "env level to check")
 	statusCmd.MarkFlagRequired("name")
+	statusCmd.MarkFlagRequired("level")
 }
