@@ -1,6 +1,3 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -14,9 +11,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var serviceEndpoint = map[string]string{
-	"door":      "https://opsdoor-development.app.wtcdev1.paas.fedex.com/actuator/health",
-	"equipment": "https://opsequipment-development.app.wtcdev1.paas.fedex.com/actuator/health",
+var serviceEndpoint = map[string][]string{
+	"door":      {"https://opsdoor-development.app.wtcdev1.paas.fedex.com/actuator/health", "https://opsdoor.app.paas.fedex.com/actuator/health"},
+	"equipment": {"https://opsequipment-development.app.wtcdev1.paas.fedex.com/actuator/health", "https://opsequipment.app.paas.fedex.com/actuator/health"},
 }
 
 type Health struct {
@@ -32,21 +29,21 @@ var statusCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+
 		fmt.Println("status called with name:", name)
 		fmt.Println("status called with level:", level)
-		
+
 		split := strings.Split(name, ",")
 		for _, s := range split {
-			fmt.Printf("%s :service, %s :endpoint\n", s, serviceEndpoint[s])
+			fmt.Printf("Getting Health for Service: %s\n", s)
 			getServiceStatus(s)
 		}
 	},
 }
 
 func getServiceStatus(name string) {
-	fmt.Println("getServiceStatus called with name:", name)
 
-	url := serviceEndpoint[name]
+	var url = getEnvUrl(level, name)
 
 	responseBytes := getActuatorHealth(url)
 
@@ -57,6 +54,20 @@ func getServiceStatus(name string) {
 	}
 
 	fmt.Printf("%s service is reporting status of %s\n", name, health.Status)
+}
+
+func getEnvUrl(l string, name string) string {
+	var url = ""
+
+	if l == "dev" {
+		url = serviceEndpoint[name][0]
+	} else if l == "prod" {
+		url = serviceEndpoint[name][1]
+	} else {
+		url = serviceEndpoint[name][0]
+	}
+
+	return url
 }
 
 func getActuatorHealth(url string) []byte {
@@ -103,5 +114,5 @@ func init() {
 	statusCmd.Flags().StringVarP(&name, "name", "n", "", "name of the service")
 	statusCmd.Flags().StringVarP(&level, "level", "l", "", "env level to check")
 	statusCmd.MarkFlagRequired("name")
-	statusCmd.MarkFlagRequired("level")
+	//statusCmd.MarkFlagRequired("level")
 }
